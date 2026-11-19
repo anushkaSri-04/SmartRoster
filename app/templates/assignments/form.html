@@ -1,0 +1,111 @@
+
+{% extends "base.html" %}
+
+{% block title %}New Assignment | SmartRoster{% endblock %}
+
+{% block content %}
+
+<div class="mb-4">
+    <h2 class="fw-bold">Create Employee Assignment</h2>
+    <p class="text-muted">
+        Select an employee, brand and process to create an assignment.
+    </p>
+</div>
+
+<div class="card border-0 shadow-sm">
+
+    <div class="card-body p-4">
+
+        <form method="POST">
+
+            <div class="mb-3">
+
+                <label class="form-label">
+                    Employee *
+                </label>
+
+                <select name="employee_id"
+                        class="form-select"
+                        required>
+
+                    <option value="">Select employee</option>
+
+                    {% for employee in employees %}
+
+                    <option value="{{ employee.id }}">
+                        {{ employee.employee_code }} - {{ employee.name }}
+                        ({{ employee.pod.name if employee.pod else "No Pod" }})
+                    </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+            <div class="mb-3">
+
+                <label class="form-label">
+                    Brand *
+                </label>
+
+                <select name="brand_id"
+                        class="form-select"
+                        required>
+
+                    <option value="">Select brand</option>
+
+                    {% for brand in brands %}
+
+                    <option value="{{ brand.id }}">
+                        {{ brand.name }}
+                    </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+            <div class="mb-3">
+
+                <label class="form-label">
+                    Process *
+                </label>
+
+                <select name="process_id"
+                        class="form-select"
+                        required>
+
+                    <option value="">Select process</option>
+
+                    {% for process in processes %}
+
+                    <option value="{{ process.id }}">
+                        {{ process.name }}
+                    </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+            <hr>
+
+            <button type="submit" class="btn btn-primary">
+                Create Assignment
+            </button>
+
+            <a href="{{ url_for('main.assignments') }}"
+               class="btn btn-outline-secondary">
+                Cancel
+            </a>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

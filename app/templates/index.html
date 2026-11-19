@@ -1,0 +1,135 @@
+
+{% extends "base.html" %}
+
+{% block title %}Dashboard | SmartRoster{% endblock %}
+
+{% block content %}
+
+<div class="mb-4">
+    <h1 class="fw-bold">
+    Smart Roster Management System
+</h1>
+    <p class="text-muted">
+        Overview of your SmartRoster workforce and operations.
+    </p>
+</div>
+
+<div class="row g-3 mb-4">
+
+    {% set stats = [
+        ("Total Employees", total_employees),
+        ("Active Employees", active_employees),
+        ("Pods", total_pods),
+        ("Brands", total_brands),
+        ("Processes", total_processes),
+        ("Rosters Generated", total_rosters)
+    ] %}
+
+    {% for label, value in stats %}
+
+    <div class="col-md-4 col-lg-2">
+
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <p class="text-muted small mb-2">{{ label }}</p>
+                <h3 class="fw-bold mb-0">{{ value }}</h3>
+            </div>
+        </div>
+
+    </div>
+
+    {% endfor %}
+
+</div>
+
+<div class="row g-4">
+
+    <div class="col-lg-6">
+
+        <div class="card border-0 shadow-sm h-100">
+
+            <div class="card-body">
+
+                <h5 class="fw-bold mb-3">Pod Distribution</h5>
+
+                <table class="table">
+
+                    <thead>
+                        <tr>
+                            <th>Pod</th>
+                            <th>Employees</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for pod_name, employee_count in pod_statistics %}
+
+                        <tr>
+                            <td>{{ pod_name }}</td>
+                            <td>{{ employee_count }}</td>
+                        </tr>
+
+                        {% else %}
+
+                        <tr>
+                            <td colspan="2">No pods available.</td>
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-lg-6">
+
+        <div class="card border-0 shadow-sm h-100">
+
+            <div class="card-body">
+
+                <h5 class="fw-bold mb-3">Recent Employees</h5>
+
+                {% for employee in recent_employees %}
+
+                <div class="d-flex justify-content-between border-bottom py-2">
+
+                    <div>
+                        <strong>{{ employee.name }}</strong>
+                        <div class="text-muted small">
+                            {{ employee.employee_code }}
+                        </div>
+                    </div>
+
+                    <span class="badge bg-success align-self-center">
+                        {{ "Active" if employee.is_active else "Inactive" }}
+                    </span>
+
+                </div>
+
+                {% else %}
+
+                <p class="text-muted">No employees available.</p>
+
+                {% endfor %}
+
+                <a href="{{ url_for('main.employees') }}"
+                   class="btn btn-outline-primary btn-sm mt-3">
+                    View All Employees
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

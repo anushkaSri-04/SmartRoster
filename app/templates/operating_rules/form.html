@@ -1,0 +1,212 @@
+
+{% extends "base.html" %}
+
+{% block title %}{{ form_title }} | SmartRoster{% endblock %}
+
+{% block content %}
+
+<div class="mb-4">
+    <h2 class="fw-bold">{{ form_title }}</h2>
+    <p class="text-muted">
+        Configure when a brand process operates, how many employees it requires,
+        and how weekly offs should be handled.
+    </p>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-4">
+
+        <form method="POST">
+
+            <!-- BRAND -->
+            <div class="mb-3">
+                <label class="form-label">Brand *</label>
+
+                <select
+                    name="brand_id"
+                    class="form-select"
+                    required
+                    {% if rule %}disabled{% endif %}
+                >
+                    <option value="">Select brand</option>
+
+                    {% for brand in brands %}
+                    <option
+                        value="{{ brand.id }}"
+                        {% if rule and rule.brand_id == brand.id %}selected{% endif %}
+                    >
+                        {{ brand.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- PROCESS -->
+            <div class="mb-3">
+                <label class="form-label">Process *</label>
+
+                <select
+                    name="process_id"
+                    class="form-select"
+                    required
+                    {% if rule %}disabled{% endif %}
+                >
+                    <option value="">Select process</option>
+
+                    {% for process in processes %}
+                    <option
+                        value="{{ process.id }}"
+                        {% if rule and rule.process_id == process.id %}selected{% endif %}
+                    >
+                        {{ process.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            {% if rule %}
+            <p class="text-muted small">
+                Brand and process cannot be changed for an existing rule.
+            </p>
+            {% endif %}
+
+            <hr>
+
+            <!-- WORKING DAYS -->
+            <label class="form-label fw-semibold">Working Days *</label>
+
+            <p class="text-muted small">
+                Select every day on which this process normally operates.
+            </p>
+
+            {% set selected_days = rule.working_days if rule else [0, 1, 2, 3, 4, 5, 6] %}
+
+            <div class="row g-2 mb-4">
+                {% for day in weekdays %}
+                <div class="col-6 col-md-4">
+                    <div class="form-check border rounded p-3 ps-5">
+
+                        <input
+                            class="form-check-input"
+                            type="checkbox"
+                            name="working_days"
+                            value="{{ loop.index0 }}"
+                            id="day{{ loop.index0 }}"
+                            {% if loop.index0 in selected_days %}checked{% endif %}
+                        >
+
+                        <label class="form-check-label" for="day{{ loop.index0 }}">
+                            {{ day }}
+                        </label>
+
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- PUBLIC HOLIDAYS -->
+            <div class="mb-4">
+                <label class="form-label fw-semibold">
+                    Public Holiday Operations
+                </label>
+
+                <select name="holidays_open" class="form-select">
+
+                    <option
+                        value="no"
+                        {% if rule and not rule.holidays_open %}selected{% endif %}
+                    >
+                        Closed on public holidays
+                    </option>
+
+                    <option
+                        value="yes"
+                        {% if rule and rule.holidays_open %}selected{% endif %}
+                    >
+                        Open on public holidays
+                    </option>
+
+                </select>
+            </div>
+
+            <!-- MINIMUM STAFF -->
+            <div class="mb-4">
+                <label class="form-label fw-semibold">
+                    Minimum Staffing Requirement *
+                </label>
+
+                <input
+                    type="number"
+                    name="min_staff"
+                    class="form-control"
+                    min="0"
+                    max="100"
+                    value="{{ rule.min_staff if rule else 1 }}"
+                    required
+                >
+
+                <div class="form-text">
+                    Minimum number of employees required when this process operates.
+                </div>
+            </div>
+
+            <!-- WEEKLY OFF POLICY -->
+            <div class="mb-4">
+                <label for="weekly_off_policy" class="form-label fw-semibold">
+                    Weekly-Off Staffing Policy *
+                </label>
+
+                <select
+                    name="weekly_off_policy"
+                    id="weekly_off_policy"
+                    class="form-select"
+                    required
+                >
+                    <option
+                        value="require_backup"
+                        {% if (rule.weekly_off_policy if rule else 'require_backup') == 'require_backup' %}selected{% endif %}
+                    >
+                        Require Backup
+                    </option>
+
+                    <option
+                        value="close_process"
+                        {% if rule and rule.weekly_off_policy == 'close_process' %}selected{% endif %}
+                    >
+                        Close Process When All Assigned Employees Are on Weekly Off
+                    </option>
+                </select>
+
+                <div class="form-text">
+                    <strong>Require Backup:</strong>
+                    Keep the process open. If fewer than the minimum required
+                    employees are available, the roster reports a coverage gap.
+
+                    <br><br>
+
+                    <strong>Close Process:</strong>
+                    Close this process for a day when all employees assigned
+                    to this brand-process combination are on their weekly off.
+                </div>
+            </div>
+
+            <hr>
+
+            <!-- BUTTONS -->
+            <button type="submit" class="btn btn-primary">
+                Save Operating Rule
+            </button>
+
+            <a
+                href="{{ url_for('main.operating_rules') }}"
+                class="btn btn-outline-secondary"
+            >
+                Cancel
+            </a>
+
+        </form>
+
+    </div>
+</div>
+
+{% endblock %}

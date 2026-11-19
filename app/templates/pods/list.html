@@ -1,0 +1,75 @@
+
+{% extends "base.html" %}
+
+{% block title %}Pods | SmartRoster{% endblock %}
+
+{% block content %}
+
+<div class="mb-4">
+    <h2 class="fw-bold">Pod Management</h2>
+    <p class="text-muted">
+        Manage teams, pod leads and workforce distribution.
+    </p>
+</div>
+
+<div class="row g-4">
+
+    {% for item in pod_data %}
+
+    {% set pod = item.pod %}
+
+    <div class="col-md-6 col-lg-4">
+
+        <div class="card border-0 shadow-sm h-100">
+
+            <div class="card-body">
+
+                <h5 class="fw-bold">{{ pod.name }}</h5>
+
+                <p class="text-muted small">
+                    Pod Lead:
+                    <strong>
+                        {{ pod.lead_employee.name if pod.lead_employee else "Not assigned" }}
+                    </strong>
+                </p>
+
+                <hr>
+
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Total Employees</span>
+                    <strong>{{ item.total_employees }}</strong>
+                </div>
+
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Active</span>
+                    <strong class="text-success">
+                        {{ item.active_employees }}
+                    </strong>
+                </div>
+
+                <div class="d-flex justify-content-between mb-3">
+                    <span>Inactive</span>
+                    <strong class="text-secondary">
+                        {{ item.inactive_employees }}
+                    </strong>
+                </div>
+
+                <a href="{{ url_for(
+                    'main.pod_detail',
+                    pod_id=pod.id
+                ) }}"
+                   class="btn btn-outline-primary w-100">
+                    View Pod
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    {% endfor %}
+
+</div>
+
+{% endblock %}

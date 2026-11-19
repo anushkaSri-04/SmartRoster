@@ -1,0 +1,157 @@
+
+{% extends "base.html" %}
+
+{% block title %}{{ pod.name }} | SmartRoster{% endblock %}
+
+{% block content %}
+
+<div class="mb-4">
+
+    <a href="{{ url_for('main.pods') }}"
+       class="text-decoration-none">
+        &larr; Back to Pods
+    </a>
+
+    <h2 class="fw-bold mt-3">{{ pod.name }}</h2>
+
+    <p class="text-muted">
+        Manage pod members and assign the pod lead.
+    </p>
+
+</div>
+
+<div class="card border-0 shadow-sm mb-4">
+
+    <div class="card-body">
+
+        <h5 class="fw-bold">Pod Lead</h5>
+
+        <p>
+            Current Lead:
+            <strong>
+                {{ pod.lead_employee.name if pod.lead_employee else "Not assigned" }}
+            </strong>
+        </p>
+
+        <form method="POST"
+              action="{{ url_for(
+                  'main.assign_pod_lead',
+                  pod_id=pod.id
+              ) }}">
+
+            <label class="form-label">
+                Assign or Change Pod Lead
+            </label>
+
+            <select name="employee_id"
+                    class="form-select mb-3"
+                    required>
+
+                <option value="">Select employee</option>
+
+                {% for employee in employees %}
+
+                    {% if employee.is_active %}
+
+                    <option value="{{ employee.id }}"
+                        {% if pod.lead_employee_id == employee.id %}
+                            selected
+                        {% endif %}>
+                        {{ employee.employee_code }} - {{ employee.name }}
+                    </option>
+
+                    {% endif %}
+
+                {% endfor %}
+
+            </select>
+
+            <button class="btn btn-primary" type="submit">
+                Save Pod Lead
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+<div class="card border-0 shadow-sm">
+
+    <div class="card-body">
+
+        <h5 class="fw-bold mb-3">Pod Employees</h5>
+
+        <div class="table-responsive">
+
+            <table class="table table-hover align-middle">
+
+                <thead class="table-light">
+                    <tr>
+                        <th>Employee Code</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Weekly Off</th>
+                        <th>Status</th>
+                        <th>Role</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% set days = [
+                        "Monday", "Tuesday", "Wednesday",
+                        "Thursday", "Friday", "Saturday", "Sunday"
+                    ] %}
+
+                    {% for employee in employees %}
+
+                    <tr>
+
+                        <td>{{ employee.employee_code }}</td>
+
+                        <td>{{ employee.name }}</td>
+
+                        <td>{{ employee.email }}</td>
+
+                        <td>{{ days[employee.weekly_off] }}</td>
+
+                        <td>
+                            {% if employee.is_active %}
+                                <span class="badge bg-success">Active</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Inactive</span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if pod.lead_employee_id == employee.id %}
+                                <span class="badge bg-primary">Pod Lead</span>
+                            {% else %}
+                                Member
+                            {% endif %}
+                        </td>
+
+                    </tr>
+
+                    {% else %}
+
+                    <tr>
+                        <td colspan="6" class="text-center">
+                            No employees assigned to this pod.
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

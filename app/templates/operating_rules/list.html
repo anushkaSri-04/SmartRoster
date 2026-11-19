@@ -1,0 +1,116 @@
+
+{% extends "base.html" %}
+
+{% block title %}Operating Rules | SmartRoster{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+    <div>
+        <h2 class="fw-bold">Operating Rules</h2>
+        <p class="text-muted">
+            Configure working calendars and minimum coverage requirements.
+        </p>
+    </div>
+
+    <a href="{{ url_for('main.add_operating_rule') }}"
+       class="btn btn-primary">
+        + Add Operating Rule
+    </a>
+
+</div>
+
+<div class="card border-0 shadow-sm">
+
+    <div class="card-body">
+
+        <div class="table-responsive">
+
+            <table class="table table-hover align-middle">
+
+                <thead class="table-light">
+                    <tr>
+                        <th>Brand</th>
+                        <th>Process</th>
+                        <th>Working Days</th>
+                        <th>Holidays Open</th>
+                        <th>Minimum Staff</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for rule in rules %}
+
+                    <tr>
+
+                        <td class="fw-semibold">
+                            {{ rule.brand.name }}
+                        </td>
+
+                        <td>{{ rule.process.name }}</td>
+
+                        <td>
+
+                            {% for day in rule.working_days %}
+                                <span class="badge bg-light text-dark border">
+                                    {{ weekdays[day][:3] }}
+                                </span>
+                            {% endfor %}
+
+                        </td>
+
+                        <td>
+
+                            {% if rule.holidays_open %}
+                                <span class="badge bg-success">Yes</span>
+                            {% else %}
+                                <span class="badge bg-secondary">No</span>
+                            {% endif %}
+
+                        </td>
+
+                        <td>{{ rule.min_staff }}</td>
+
+                        <td>
+
+                            <a href="{{ url_for(
+                                'main.edit_operating_rule',
+                                rule_id=rule.id
+                            ) }}"
+                               class="btn btn-sm btn-outline-primary">
+                                Edit
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+                    {% else %}
+
+                    <tr>
+                        <td colspan="6"
+                            class="text-center text-muted py-4">
+                            No operating rules found.
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        <p class="text-muted mb-0">
+            Total operating rules: {{ rules|length }}
+        </p>
+
+    </div>
+
+</div>
+
+{% endblock %}

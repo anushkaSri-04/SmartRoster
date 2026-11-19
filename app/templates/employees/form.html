@@ -1,0 +1,134 @@
+
+{% extends "base.html" %}
+
+{% block title %}{{ form_title }} | SmartRoster{% endblock %}
+
+{% block content %}
+
+<div class="mb-4">
+    <h2 class="fw-bold">{{ form_title }}</h2>
+    <p class="text-muted">
+        Enter employee details and assign them to a pod.
+    </p>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-4">
+
+        <form method="POST">
+
+            <div class="row">
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Employee Code *</label>
+
+                    <input
+                        type="text"
+                        name="employee_code"
+                        class="form-control"
+                        value="{{ employee.employee_code if employee else '' }}"
+                        placeholder="EMP031"
+                        required
+                    >
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Full Name *</label>
+
+                    <input
+                        type="text"
+                        name="name"
+                        class="form-control"
+                        value="{{ employee.name if employee else '' }}"
+                        placeholder="Enter employee name"
+                        required
+                    >
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Email Address *</label>
+
+                    <input
+                        type="email"
+                        name="email"
+                        class="form-control"
+                        value="{{ employee.email if employee else '' }}"
+                        placeholder="employee@example.com"
+                        required
+                    >
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Assign Pod *</label>
+
+                    <select name="pod_id" class="form-select" required>
+
+                        <option value="">Select a pod</option>
+
+                        {% for pod in pods %}
+
+                        <option
+                            value="{{ pod.id }}"
+                            {% if employee and employee.pod_id == pod.id %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ pod.name }}
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Weekly Off *</label>
+
+                    {% set days = [
+                        "Monday", "Tuesday", "Wednesday",
+                        "Thursday", "Friday", "Saturday", "Sunday"
+                    ] %}
+
+                    <select name="weekly_off" class="form-select" required>
+
+                        <option value="">Select weekly off</option>
+
+                        {% for day in days %}
+
+                        <option
+                            value="{{ loop.index0 }}"
+                            {% if employee and employee.weekly_off == loop.index0 %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ day }}
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+                </div>
+
+            </div>
+
+            <hr>
+
+            <div class="d-flex gap-2">
+
+                <button type="submit" class="btn btn-primary">
+                    Save Employee
+                </button>
+
+                <a href="{{ url_for('main.employees') }}"
+                   class="btn btn-outline-secondary">
+                    Cancel
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+{% endblock %}

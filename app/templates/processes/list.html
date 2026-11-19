@@ -1,0 +1,87 @@
+
+{% extends "base.html" %}
+
+{% block title %}Processes | SmartRoster{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold">Process Management</h2>
+        <p class="text-muted">
+            Manage the different types of work handled by employees.
+        </p>
+    </div>
+
+    <a href="{{ url_for('main.add_process') }}"
+       class="btn btn-primary">
+        + Add Process
+    </a>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+
+        <div class="table-responsive">
+
+            <table class="table table-hover align-middle">
+
+                <thead class="table-light">
+                    <tr>
+                        <th>Process Name</th>
+                        <th>Description</th>
+                        <th>Active Assignments</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for item in process_data %}
+
+                    {% set process = item.process %}
+
+                    <tr>
+                        <td class="fw-semibold">
+                            {{ process.name }}
+                        </td>
+
+                        <td>
+                            {{ process.description or "No description" }}
+                        </td>
+
+                        <td>
+                            {{ item.active_assignments }}
+                        </td>
+
+                        <td>
+                            <a href="{{ url_for(
+                                'main.edit_process',
+                                process_id=process.id
+                            ) }}"
+                               class="btn btn-sm btn-outline-primary">
+                                Edit
+                            </a>
+                        </td>
+                    </tr>
+
+                    {% else %}
+
+                    <tr>
+                        <td colspan="4" class="text-center text-muted">
+                            No processes found.
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

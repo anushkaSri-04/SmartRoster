@@ -1,0 +1,319 @@
+
+{% extends "base.html" %}
+
+{% block title %}Roster Details | SmartRoster{% endblock %}
+
+{% block content %}
+
+<!-- PAGE HEADER -->
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+
+    <div>
+        <h2 class="fw-bold">
+            Monthly Roster:
+            {{ "%02d"|format(roster.month) }}/{{ roster.year }}
+        </h2>
+
+        <p class="text-muted mb-0">
+            Roster ID: {{ roster.id }}
+            |
+            Status:
+            <span class="badge bg-secondary">
+                {{ roster.status.title() }}
+            </span>
+        </p>
+    </div>
+
+    <a href="{{ url_for('main.generate_roster') }}"
+       class="btn btn-outline-primary">
+        Generate Another Roster
+    </a>
+
+</div>
+
+
+<!-- SUMMARY CARDS -->
+<div class="row g-3 mb-4">
+
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <p class="text-muted mb-1">Daily Entries</p>
+                <h3>{{ entries|length }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <p class="text-muted mb-1">Total Tasks</p>
+                <h3>
+                    {{ entries|sum(attribute="tasks")|length if false else entries|map(attribute="tasks")|map("length")|sum }}
+                </h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <p class="text-muted mb-1">Total Conflicts</p>
+                <h3 class="text-danger">{{ conflicts|length }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <p class="text-muted mb-1">Unresolved Conflicts</p>
+                <h3 class="text-danger">
+                    {{ conflicts|selectattr("is_resolved", "equalto", false)|list|length }}
+                </h3>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<!-- COVERAGE CONFLICTS -->
+<div class="card border-0 shadow-sm mb-4">
+
+    <div class="card-body">
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold mb-0">Coverage Conflicts</h5>
+
+            <span class="badge bg-danger">
+                {{ conflicts|length }} Total
+            </span>
+        </div>
+
+        {% for conflict in conflicts %}
+
+        <div class="alert alert-danger">
+
+            <div class="d-flex justify-content-between flex-wrap gap-2">
+
+                <strong>
+                    {{ conflict.brand.name if conflict.brand else "Brand" }}
+
+                    {% if conflict.process %}
+                        — {{ conflict.process.name }}
+                    {% endif %}
+                </strong>
+
+                <span class="badge bg-danger">
+                    {{ conflict.severity|upper }}
+                </span>
+
+            </div>
+
+            <div class="mt-2">
+                {{ conflict.message }}
+            </div>
+
+            <small class="text-muted">
+                Date:
+                {{ conflict.conflict_date.strftime("%d %b %Y") if conflict.conflict_date else "Not specified" }}
+                |
+                Status:
+                {{ "Resolved" if conflict.is_resolved else "Unresolved" }}
+            </small>
+
+        </div>
+
+        {% else %}
+
+        <div class="alert alert-success mb-0">
+            <strong>No coverage conflicts found.</strong>
+            All configured staffing requirements are currently satisfied.
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+</div>
+
+
+<!-- EMPLOYEE DAILY ROSTER -->
+<div class="card border-0 shadow-sm mb-4">
+
+    <div class="card-body">
+
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+
+            <div>
+                <h5 class="fw-bold mb-1">Employee Daily Roster</h5>
+
+                <p class="text-muted small mb-0">
+                    Review employee assignments and daily availability.
+                </p>
+            </div>
+
+        </div>
+
+        <div class="table-responsive">
+
+            <table class="table table-hover align-middle">
+
+                <thead class="table-light">
+
+                    <tr>
+                        <th>Date</th>
+                        <th>Employee</th>
+                        <th>Daily Status</th>
+                        <th>Brand</th>
+                        <th>Process</th>
+                        <th>Action</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for entry in entries %}
+
+                        {% if entry.tasks %}
+
+                            {% for task in entry.tasks %}
+
+                            <tr>
+
+                                <td>
+                                    {{ entry.work_date.strftime("%d %b %Y") }}
+                                </td>
+
+                                <td>
+                                    <strong>{{ entry.employee.employee_code }}</strong>
+                                    <br>
+                                    <small class="text-muted">
+                                        {{ entry.employee.name }}
+                                    </small>
+                                </td>
+
+                                <td>
+                                    <span class="badge bg-success">
+                                        Working
+                                    </span>
+                                </td>
+
+                                <td>
+                                    {{ task.brand.name }}
+                                </td>
+
+                                <td>
+                                    {{ task.process.name }}
+                                </td>
+
+                                <td>
+                                    <a
+                                        href="{{ url_for('main.edit_roster_task', task_id=task.id) }}"
+                                        class="btn btn-sm btn-outline-primary"
+                                    >
+                                        Edit
+                                    </a>
+                                </td>
+
+                            </tr>
+
+                            {% endfor %}
+
+                        {% else %}
+
+                        <tr>
+
+                            <td>
+                                {{ entry.work_date.strftime("%d %b %Y") }}
+                            </td>
+
+                            <td>
+                                <strong>{{ entry.employee.employee_code }}</strong>
+                                <br>
+                                <small class="text-muted">
+                                    {{ entry.employee.name }}
+                                </small>
+                            </td>
+
+                            <td>
+
+                                {% if entry.status == "weekly_off" %}
+
+                                    <span class="badge bg-secondary">
+                                        Weekly Off
+                                    </span>
+
+                                {% elif entry.status == "leave" %}
+
+                                    <span class="badge bg-warning text-dark">
+                                        Leave
+                                    </span>
+
+                                {% elif entry.status == "comp_off" %}
+
+                                    <span class="badge bg-info text-dark">
+                                        Comp Off
+                                    </span>
+
+                                {% elif entry.status == "holiday" %}
+
+                                    <span class="badge bg-secondary">
+                                        Holiday
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="badge bg-success">
+                                        Working
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+                            <td colspan="2" class="text-muted">
+                                No process allocated
+                            </td>
+
+                            <td>
+                                <span class="text-muted small">
+                                    No tasks
+                                </span>
+                            </td>
+
+                        </tr>
+
+                        {% endif %}
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- FOOTER -->
+<div class="d-flex justify-content-between flex-wrap gap-2">
+
+    <a href="{{ url_for('main.index') }}"
+       class="btn btn-outline-secondary">
+        Back to Dashboard
+    </a>
+
+    <a href="{{ url_for('main.generate_roster') }}"
+       class="btn btn-primary">
+        Generate Roster
+    </a>
+
+</div>
+
+{% endblock %}
